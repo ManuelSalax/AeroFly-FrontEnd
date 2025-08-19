@@ -1,0 +1,63 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+export default function Navbar() {
+  const [usuario, setUsuario] = useState(null);
+  const navigate = useNavigate();
+
+  // Verifica si hay un usuario guardado en localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem('usuario');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUsuario(parsedUser); // Redirige a vuelos si ya está logueado
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('usuario');
+    setUsuario(null);
+    navigate('/'); // Redirige a inicio o info
+  };
+
+  return (
+    <nav className="bg-blue-700 text-white px-6 py-4 shadow-md flex justify-between items-center">
+      <div className="flex items-center gap-4">
+        <img src="/src/assets/avion_sin_fondo.png" alt="AeroFly" className="w-15 h-10" />
+        <Link to="/info" className="text-xl font-bold hover:underline">AeroFly</Link>
+        <Link to="/vuelos" className="hover:underline">Vuelos</Link>
+        <Link to="/reservas" className="hover:underline">Reservas</Link>
+        <Link to="/pagos" className="hover:underline">Pagos</Link>
+      </div>
+
+      <div className="flex items-center gap-4">
+        {!usuario ? (
+          <>
+            <Link
+              to="/registro"
+              className="bg-white text-blue-700 font-semibold px-4 py-1 rounded hover:bg-blue-100"
+            >
+              Registrarse
+            </Link>
+            <Link
+              to="/login"
+              className="bg-white text-blue-700 font-semibold px-4 py-1 rounded hover:bg-blue-100"
+            >
+              Iniciar sesión
+            </Link>
+          </>
+        ) : (
+          <>
+            <span className="font-medium">👤 {usuario.username}</span>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+            >
+              Cerrar sesión
+            </button>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+}
