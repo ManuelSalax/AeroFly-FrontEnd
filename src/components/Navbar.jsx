@@ -5,15 +5,20 @@ export default function Navbar() {
   const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
 
-  // Verifica si hay un usuario guardado en localStorage
+  // ✅ Cargar usuario (fusionado con cliente) desde localStorage
   useEffect(() => {
     const userData = localStorage.getItem('usuario');
     if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUsuario(parsedUser); // Redirige a vuelos si ya está logueado
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUsuario(parsedUser);
+      } catch (err) {
+        console.error('Error al leer usuario desde localStorage', err);
+      }
     }
   }, []);
 
+  // ✅ Cerrar sesión
   const handleLogout = () => {
     localStorage.removeItem('usuario');
     setUsuario(null);
@@ -22,14 +27,28 @@ export default function Navbar() {
 
   return (
     <nav className="bg-blue-700 text-white px-6 py-4 shadow-md flex justify-between items-center">
+      {/* 🔹 Sección izquierda */}
       <div className="flex items-center gap-4">
-        <img src="/src/assets/avion_sin_fondo.png" alt="AeroFly" className="w-15 h-10" />
-        <Link to="/info" className="text-xl font-bold hover:underline">AeroFly</Link>
-        <Link to="/vuelos" className="hover:underline">Vuelos</Link>
-        <Link to="/reservas" className="hover:underline">Reservas</Link>
-        <Link to="/pagos" className="hover:underline">Pagos</Link>
+        <img
+          src="/src/assets/avion_sin_fondo.png"
+          alt="AeroFly"
+          className="w-15 h-10"
+        />
+        <Link to="/info" className="text-xl font-bold hover:underline">
+          AeroFly
+        </Link>
+        <Link to="/vuelos" className="hover:underline">
+          Vuelos
+        </Link>
+        <Link to="/reservas" className="hover:underline">
+          Reservas
+        </Link>
+        <Link to="/pagos" className="hover:underline">
+          Pagos
+        </Link>
       </div>
 
+      {/* 🔹 Sección derecha (usuario o botones de login) */}
       <div className="flex items-center gap-4">
         {!usuario ? (
           <>
@@ -48,7 +67,18 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <span className="font-medium">👤 {usuario.username}</span>
+            {/* 👤 Usuario logueado con tooltip */}
+            <div className="relative group">
+              <span className="font-medium cursor-pointer">
+                👤 {usuario.cliente?.nombre || usuario.username}
+              </span>
+
+              {/* Tooltip con correo */}
+              <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max bg-gray-800 text-white text-sm px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {usuario.cliente?.email || usuario.email || 'Sin correo registrado'}
+              </div>
+            </div>
+
             <button
               onClick={handleLogout}
               className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"

@@ -18,8 +18,8 @@ export default function VueloCard({ vuelo }) {
 
       {/* Detalles del vuelo */}
       <div className="text-gray-700 text-sm space-y-2">
-        <p><strong>🛫 Salida:</strong> {vuelo.fechaInicio}</p>
-        <p><strong>🛬 Llegada:</strong> {vuelo.fechaFin}</p>
+        <p><strong>🛫 Salida:</strong> {vuelo.fechaSalida}</p>
+        <p><strong>🛬 Llegada:</strong> {vuelo.fechaLlegada}</p>
         <p><strong>📝 Descripción:</strong> {vuelo.descripcion}</p>
         <p className="text-lg font-semibold text-green-700 mt-2">
           💰 ${vuelo.precio?.toLocaleString()}

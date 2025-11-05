@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Swal from 'sweetalert2';
-import { registrarPago } from '../services/pagoServices';
+import { registrarPago } from '../services/pagoService';
 
 export default function PagoForm({ reservaId }) {
   const [monto, setMonto] = useState('');

@@ -4,36 +4,35 @@ import Swal from 'sweetalert2';
 import { buscarPorId } from '../services/vueloService';
 import ReservaForm from '../components/ReservaForm';
 import PagoForm from '../components/PagoForm';
+import DetallesReserva from '../components/DetallesReserva';
 
 export default function VueloDetalles() {
   const { id } = useParams();
   const [vuelo, setVuelo] = useState(null);
-  const [clienteId, setClienteId] = useState('');
   const [reservaId, setReservaId] = useState(null);
+  const [cliente, setCliente] = useState(null); // datos del cliente desde la API
+  const [usuario, setUsuario] = useState(null); // datos del usuario logueado
+  const [mostrarDetallesReserva, setMostrarDetallesReserva] = useState(false);
+  const [mostrarPago, setMostrarPago] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const usuarioGuardado = localStorage.getItem('usuario');
-    try {
-      const usuario = JSON.parse(usuarioGuardado);
-      if (usuario?.id) {
-        setClienteId(usuario.id);
-      }
-    // eslint-disable-next-line no-unused-vars
-    } catch (error) {
-      console.warn("Usuario inválido en localStorage");
-    }
-
+    // 🔹 Buscar vuelo por ID
     buscarPorId(id)
-      .then(response => {
-        setVuelo(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error al buscar vuelo:", error);
-        setLoading(false);
-        Swal.fire('Error', 'No se pudo cargar la información del vuelo.', 'error');
-      });
+      .then(response => setVuelo(response.data))
+      .catch(() => Swal.fire('Error', 'No se pudo cargar el vuelo.', 'error'))
+      .finally(() => setLoading(false));
+
+    // 🔹 Cargar usuario desde localStorage (login)
+    const usuarioGuardado = localStorage.getItem('usuario');
+    if (usuarioGuardado) {
+      try {
+        const parsedUser = JSON.parse(usuarioGuardado);
+        setUsuario(parsedUser);
+      } catch (err) {
+        console.error("Error al leer el usuario:", err);
+      }
+    }
   }, [id]);
 
   if (loading) {
@@ -46,20 +45,46 @@ export default function VueloDetalles() {
 
   return (
     <div className="min-h-screen p-8 bg-blue-50 text-gray-800">
-      {/* Detalles del vuelo */}
+      {/* 🛫 Detalles del vuelo */}
       <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-xl p-6 mb-10">
         <h1 className="text-3xl font-bold text-blue-700 mb-4">🛫 Vuelo a {vuelo.destino}</h1>
         <p><strong>🛬 Origen:</strong> {vuelo.origen}</p>
-        <p><strong>📅 Fechas:</strong> {vuelo.fechaInicio} - {vuelo.fechaFin}</p>
+        <p><strong>📅 Fechas:</strong> {vuelo.fechaSalida} - {vuelo.fechaLlegada}</p>
         <p><strong>💲 Precio:</strong> ${vuelo.precio?.toLocaleString()}</p>
         <p><strong>📝 Descripción:</strong> {vuelo.descripcion}</p>
       </div>
 
-      {/* Componente de reserva */}
-      <ReservaForm clienteId={clienteId} vueloId={id} onReservaExitosa={setReservaId} />
+      {/* ✈️ Flujo dinámico */}
+      {!mostrarDetallesReserva && !mostrarPago && (
+        <ReservaForm
+          vueloId={id}
+          onReservaExitosa={(idReserva) => {
+            setReservaId(idReserva);
+            // Simulación: el cliente logueado será el mismo usuario
+            // (aquí podrías consultar el cliente real si lo necesitas)
+            setCliente({
+              nombre: usuario?.nombre || usuario?.username || 'Cliente sin nombre',
+            });
+            setMostrarDetallesReserva(true);
+          }}
+        />
+      )}
 
-      {/* Componente de pago */}
-      <PagoForm reservaId={reservaId} />
+      {mostrarDetallesReserva && cliente && usuario && (
+        <DetallesReserva
+          cliente={cliente}
+          usuario={usuario}
+          vuelo={vuelo}
+          onContinuarPago={() => {
+            setMostrarDetallesReserva(false);
+            setMostrarPago(true);
+          }}
+        />
+      )}
+
+      {mostrarPago && reservaId && (
+        <PagoForm reservaId={reservaId} />
+      )}
     </div>
   );
 }
