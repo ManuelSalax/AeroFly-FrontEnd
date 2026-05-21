@@ -9,3 +9,7 @@ export const obtenerVuelos = () => {
 export const buscarPorId = (id) => {
   return axios.get(`${API_URL}/${id}`);
 };
+
+export const crearVuelo = (vuelo) => {
+  return axios.post(API_URL, vuelo);
+};

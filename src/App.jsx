@@ -8,6 +8,8 @@ import RegistroForm from './pages/RegistroForm';
 import Login from './pages/Login';
 import VueloDetalles from './pages/VueloDetalles';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
+import Dashboard from './pages/Dashboard';
 
 export default function App() {
   return (
@@ -29,6 +31,14 @@ export default function App() {
         <Route path="/info" element={<InfoPage />} />
         <Route path="/registro" element={<RegistroForm />} />
         <Route path="/login" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={
+            <AdminRoute>
+              <Dashboard />
+            </AdminRoute>
+          }
+        />
       </Routes>
     </Router>
   );

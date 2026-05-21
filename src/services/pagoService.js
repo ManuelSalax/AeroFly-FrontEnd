@@ -1,10 +1,18 @@
 import axios from "axios";
 
 export async function registrarPago(reservaId, monto, metodoPago) {
-  const payload = { reservaId, monto, metodoPago };
-  console.log("📦 Enviando pago:", payload);
+  console.log("📦 Enviando pago:", { reservaId, monto, metodoPago });
 
-  return await axios.post("http://localhost:8080/api/pagos", payload, {
-    headers: { "Content-Type": "application/json" },
+  // Se envían como query parameters (?reservaId=X&monto=Y&metodoPago=Z)
+  return await axios.post("http://localhost:8080/api/pagos", null, {
+    params: {
+      reservaId: Number(reservaId),
+      monto: Number(monto),
+      metodoPago: metodoPago
+    }
   });
+}
+
+export async function obtenerPagos() {
+  return await axios.get("http://localhost:8080/api/pagos");
 }

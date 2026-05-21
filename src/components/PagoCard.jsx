@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import { registrarPago } from "../services/pagoService";
 
 export default function PagoCard({ reservaId, monto, onPagoExitoso }) {
   const [metodoPago, setMetodoPago] = useState("Tarjeta");
@@ -16,8 +17,8 @@ export default function PagoCard({ reservaId, monto, onPagoExitoso }) {
     }
   }, [monto]);
 
-  const handlePago = () => {
-    console.log("💳 Simulando pago:", { reservaId, montoFinal, metodoPago });
+  const handlePago = async () => {
+    console.log("💳 Procesando pago real:", { reservaId, montoFinal, metodoPago });
 
     if (!reservaId) {
       Swal.fire("Error", "Falta el ID de la reserva.", "error");
@@ -25,12 +26,17 @@ export default function PagoCard({ reservaId, monto, onPagoExitoso }) {
     }
 
     setProcesando(true);
-    setTimeout(() => {
-      setProcesando(false);
+    try {
+      await registrarPago(reservaId, montoFinal, metodoPago);
       setPagoRealizado(true);
-      Swal.fire("✅ Vuelo Pagado", "El pago fue procesado exitosamente (modo demo).", "success");
+      Swal.fire("✅ Vuelo Pagado", "El pago fue procesado y registrado exitosamente.", "success");
       onPagoExitoso?.(); // si existe el callback, se ejecuta
-    }, 1500);
+    } catch (err) {
+      console.error("Error al registrar el pago:", err);
+      Swal.fire("❌ Error al Pagar", "No se pudo registrar el pago. Intenta de nuevo.", "error");
+    } finally {
+      setProcesando(false);
+    }
   };
 
   return (

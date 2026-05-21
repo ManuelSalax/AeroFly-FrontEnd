@@ -9,3 +9,11 @@ export async function registrarReserva(clienteId, vueloId) {
     headers: { "Content-Type": "application/json" },
   });
 }
+
+export async function obtenerReservaPorId(id) {
+  return await axios.get(`http://localhost:8080/api/reservas/${id}`);
+}
+
+export async function obtenerReservas() {
+  return await axios.get("http://localhost:8080/api/reservas");
+}

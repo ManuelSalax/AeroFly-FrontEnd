@@ -26,7 +26,14 @@ export default function Login() {
 
       if (usuarioEncontrado && usuarioEncontrado.id) {
         localStorage.setItem('usuario', JSON.stringify(usuarioEncontrado));
-        navigate('/vuelos');
+        // Disparar evento para actualizar el Navbar de inmediato
+        window.dispatchEvent(new Event('usuario_login'));
+        
+        if (usuarioEncontrado.rol === 'ADMIN') {
+          navigate('/dashboard');
+        } else {
+          navigate('/vuelos');
+        }
       } else {
         setError('Usuario o contraseña incorrectos');
       }

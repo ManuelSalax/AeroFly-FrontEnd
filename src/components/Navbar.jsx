@@ -5,23 +5,39 @@ export default function Navbar() {
   const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
 
-  // ✅ Cargar usuario (fusionado con cliente) desde localStorage
+  // ✅ Cargar usuario (fusionado con cliente) desde localStorage con reactividad
   useEffect(() => {
-    const userData = localStorage.getItem('usuario');
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUsuario(parsedUser);
-      } catch (err) {
-        console.error('Error al leer usuario desde localStorage', err);
+    const cargarUsuario = () => {
+      const userData = localStorage.getItem('usuario');
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          setUsuario(parsedUser);
+        } catch (err) {
+          console.error('Error al leer usuario desde localStorage', err);
+        }
+      } else {
+        setUsuario(null);
       }
-    }
+    };
+
+    cargarUsuario();
+
+    // Escuchar cambios de almacenamiento
+    window.addEventListener('storage', cargarUsuario);
+    window.addEventListener('usuario_login', cargarUsuario);
+
+    return () => {
+      window.removeEventListener('storage', cargarUsuario);
+      window.removeEventListener('usuario_login', cargarUsuario);
+    };
   }, []);
 
   // ✅ Cerrar sesión
   const handleLogout = () => {
     localStorage.removeItem('usuario');
     setUsuario(null);
+    window.dispatchEvent(new Event('usuario_login'));
     navigate('/'); // Redirige a inicio o info
   };
 
@@ -46,6 +62,11 @@ export default function Navbar() {
         <Link to="/pagos" className="hover:underline">
           Pagos
         </Link>
+        {usuario && usuario.rol === 'ADMIN' && (
+          <Link to="/dashboard" className="text-yellow-300 font-bold hover:text-yellow-400 transition ml-2 flex items-center gap-1">
+            ⚙️ Dashboard
+          </Link>
+        )}
       </div>
 
       {/* 🔹 Sección derecha (usuario o botones de login) */}
